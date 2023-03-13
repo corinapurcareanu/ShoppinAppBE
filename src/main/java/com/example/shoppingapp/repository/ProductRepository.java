@@ -12,5 +12,7 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     public List<Product> findAll(Pageable pageable);
 
     public List<Product> findByProductNameContainingIgnoreCaseOrProductDescriptionContainingIgnoreCase(String key1, String key2, Pageable pageable);
+
+    List<Product> findByType(String type);
 }
 

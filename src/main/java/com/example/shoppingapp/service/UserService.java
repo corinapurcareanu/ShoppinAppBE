@@ -32,6 +32,10 @@ public class UserService {
         roles.add(role);
         user.setRole(roles);
         user.setUserPassword(getEncodedPassword(user.getUserPassword()));
+
+        if(userRepository.findByUserName(user.getUserFirstName()).isPresent()) {
+            return null;
+        }
         return userRepository.save(user);
     }
 

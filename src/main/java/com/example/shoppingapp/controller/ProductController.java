@@ -21,6 +21,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping(value = {"/addNewProduct"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasRole('admin')")
     public Product addNewProduct(@RequestPart("product") Product product,
                                  @RequestPart("imageFile") MultipartFile[] file) {
 
@@ -56,12 +57,19 @@ public class ProductController {
         return productService.getAllProducts(pageNumber, searchKey);
     }
 
+    @GetMapping({"/getAllProductsByType"})
+    public List<Product> getAllProductsByType(@RequestParam(defaultValue = "0")int pageNumber,
+                                        @RequestParam(defaultValue = "") String ... types) {
+        return productService.getAllProductsByType(pageNumber, types);
+    }
+
     @GetMapping({"/getProductDetailsById/{productId}"})
     public Product getProductDetailsById(@PathVariable("productId") Long productId) {
         return productService.getProductDetailsById(productId);
     }
 
     @DeleteMapping({"/deleteProductDetails/{productId}"})
+    @PreAuthorize("hasRole('admin')")
     public void deleteProductDetails(@PathVariable("productId") Long productId) {
         productService.deleteProductDetails(productId);
     }

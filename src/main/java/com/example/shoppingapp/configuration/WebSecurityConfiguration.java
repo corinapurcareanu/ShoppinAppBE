@@ -67,7 +67,7 @@ public class WebSecurityConfiguration {
                 .requestMatchers("/authenticate", "/registerUser", "/addNewProduct", "/createRole", "/getAllProducts",
                         "/deleteProductDetails/{productId}" , "/getProductDetailsById/{productId}", "/placeOrder",
                         "/getProductDetails", "/addToCart/{productId}",
-                        "/getCartDetails", "/deleteCartItem/{cartId}")
+                        "/getCartDetails", "/deleteCartItem/{cartId}", "/getAllProductsByType")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,5 +56,19 @@ public class ProductService {
         User user = userRepository.findByUserName(userName).get();
         List<Cart> carts = cartRepository.findByUser(user);
         return carts.stream().map(x -> x.getProduct()).collect(Collectors.toList());
+    }
+
+    public List<Product> getAllProductsByType(int pageNumber, String... types) {
+        Pageable pageable = PageRequest.of(pageNumber, 12);
+        List<Product> products = new ArrayList<>();
+
+        List<String> typeList = Arrays.stream(types.clone()).toList();
+
+        typeList.forEach(type ->
+                        products.addAll(productRepository.findByType(type))
+            );
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), products.size());
+        return products.subList(start, end);
     }
 }
