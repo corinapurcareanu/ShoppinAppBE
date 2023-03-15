@@ -34,7 +34,11 @@ public class CartService {
            user = userRepository.findByUserName(userName).get();
        }
        List<Cart> cartList = cartRepository.findByUser(user);
+        cartList.forEach(
+                c -> System.out.println(c.getProduct().getId())
+        );
        List<Cart> filteredList = cartList.stream().filter(x -> x.getProduct().getId() == productId).collect(Collectors.toList());
+       System.out.println("dimensiune" + filteredList.size());
        if(filteredList.size() > 0) {
            Cart cart = filteredList.get(0);
            cart.setQuantity(cart.getQuantity() + 1);
@@ -66,5 +70,41 @@ public class CartService {
 
     public void deleteCartItem(Long cartId) {
         cartRepository.deleteById(cartId);
+    }
+
+    public Cart updatedQuantityInCart(Long productId, Boolean increase) {
+        Product product = productRepository.findById(productId).get();
+        String userName = JwtRequestFilter.CURRENT_USER;
+        User user = null;
+
+        if (userName != null) {
+            user = userRepository.findByUserName(userName).get();
+        }
+        List<Cart> cartList = cartRepository.findByUser(user);
+        cartList.forEach(
+                c -> System.out.println(c.getProduct().getId())
+        );
+        List<Cart> filteredList = cartList.stream().filter(x -> x.getProduct().getId() == productId).collect(Collectors.toList());
+        System.out.println("dimensiune" + filteredList.size());
+        if (filteredList.size() > 0) {
+            Cart cart = filteredList.get(0);
+            if(increase) {
+                cart.setQuantity(cart.getQuantity() + 1);
+            } else {
+                cart.setQuantity(cart.getQuantity() - 1);
+            }
+            cartRepository.deleteById(cart.getId());
+            return cartRepository.save(cart);
+        }
+
+        if (product != null && user != null) {
+            Cart cart = new Cart(
+                    product,
+                    user,
+                    1
+            );
+            return cartRepository.save(cart);
+        }
+        return null;
     }
 }
