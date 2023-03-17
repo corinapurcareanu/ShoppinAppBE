@@ -9,6 +9,9 @@ import com.example.shoppingapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -52,6 +55,7 @@ public class OrderDetailService {
                 orderInput.getOrderAlternateContactNumber(),
                 ORDER_PLACED,
                 (double) 0,
+                LocalDate.now().toString(),
                 new HashSet<>(),
                 user
         );
@@ -61,9 +65,16 @@ public class OrderDetailService {
        for(Cart c : cart) {
            Product product = productRepository.findById(c.getProduct().getId()).get();
 
-           amount += product.getProductDiscountedPrice() * c.getQuantity();
-
-           orderDetail.addProduct(product);
+           if(product.getProductDiscountedPrice() != null && product.getProductDiscountedPrice() != 0) {
+               amount += product.getProductDiscountedPrice() * c.getQuantity();
+           } else {
+               amount += product.getProductActualPrice() * c.getQuantity();
+           }
+           orderDetail.addProduct(new OrderProducts(
+                   c.getProduct(),
+                   c.getUser(),
+                   c.getQuantity()
+           ));
 
            cartRepository.deleteById(c.getId());
        }
@@ -71,5 +82,36 @@ public class OrderDetailService {
        orderDetail.setOrderAmount(amount);
 
         return orderDetailRepository.save(orderDetail);
+    }
+
+    public List<OrderDetail> getOrderDetails() {
+        String currentUser = JwtRequestFilter.CURRENT_USER;
+        User user = userRepository.findByUserName(currentUser).get();
+
+        return orderDetailRepository.findByUser(user);
+    }
+
+    public List<OrderDetail> getAllOrderDetails(String status){
+        List<OrderDetail> orderDetails = new ArrayList<>();
+
+        if(status.equals("All")){
+            orderDetailRepository.findAll().forEach(
+                    x -> orderDetails.add(x)
+            );
+        } else {
+            orderDetailRepository.findByOrderStatus(status).forEach(
+                    x -> orderDetails.add(x)
+            );
+        }
+
+        return orderDetails;
+    }
+
+    public void markOrderAdDelivered(Long orderId) {
+        OrderDetail orderDetail = orderDetailRepository.findById(orderId).get();
+        if(orderDetail != null) {
+            orderDetail.setOrderStatus("Delivered");
+            orderDetailRepository.save(orderDetail);
+        }
     }
 }

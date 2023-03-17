@@ -3,6 +3,7 @@ package com.example.shoppingapp.entity;
 
 import jakarta.persistence.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +21,8 @@ public class OrderDetail {
     private String orderStatus;
     private Double orderAmount;
 
+    private String orderDatePlaced;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "ORDER_PRODUCT",
             joinColumns = {
@@ -28,24 +31,38 @@ public class OrderDetail {
             inverseJoinColumns = {
                     @JoinColumn(name = "ORDER_ID")
             })
-    private Set<Product> products;
+    private Set<OrderProducts> products;
     @OneToOne
     private User user;
 
 
-    public OrderDetail(String orderFullName, String orderFullAddress, String orderContactNumber, String orderAlternateContactNumber, String orderStatus, Double orderAmount, Set<Product> products, User user) {
+    public OrderDetail(String orderFullName, String orderFullAddress, String orderContactNumber, String orderAlternateContactNumber, String orderStatus,
+                       Double orderAmount, String orderDatePlaced, Set<OrderProducts> products, User user) {
         this.orderFullName = orderFullName;
         this.orderFullAddress = orderFullAddress;
         this.orderContactNumber = orderContactNumber;
         this.orderAlternateContactNumber = orderAlternateContactNumber;
         this.orderStatus = orderStatus;
         this.orderAmount = orderAmount;
+        this.orderDatePlaced = orderDatePlaced;
         this.products = products;
         this.user = user;
     }
 
     public OrderDetail() {
 
+    }
+
+    public String getOrderDatePlaced() {
+        return orderDatePlaced;
+    }
+
+    public void setOrderDatePlaced(String orderDatePlaced) {
+        this.orderDatePlaced = orderDatePlaced;
+    }
+
+    public void setProducts(Set<OrderProducts> products) {
+        this.products = products;
     }
 
     public String getOrderFullName() {
@@ -104,7 +121,7 @@ public class OrderDetail {
         this.id = id;
     }
 
-    public Set<Product> getProducts() {
+    public Set<OrderProducts> getProducts() {
         return products;
     }
 
@@ -112,7 +129,7 @@ public class OrderDetail {
         this.products = products;
     }
 
-    public void addProduct(Product product){
+    public void addProduct(OrderProducts product){
         this.products.add(product);
     }
 
