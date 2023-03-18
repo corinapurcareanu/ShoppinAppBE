@@ -35,7 +35,7 @@ public class ProductController {
         }
     }
 
-    public Set<ImageModel> uploadImage(MultipartFile[] multipartFiles) throws IOException {
+    private Set<ImageModel> uploadImage(MultipartFile[] multipartFiles) throws IOException {
         Set<ImageModel> imageModels = new HashSet<>();
 
         for(MultipartFile file: multipartFiles) {

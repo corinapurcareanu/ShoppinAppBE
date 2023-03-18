@@ -2,9 +2,6 @@ package com.example.shoppingapp.entity;
 
 
 import jakarta.persistence.*;
-
-import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -13,15 +10,21 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-
+    @Column(nullable=false)
     private String orderFullName;
+    @Column(nullable=false)
     private String orderFullAddress;
+    @Column(nullable=false)
     private String orderContactNumber;
     private String orderAlternateContactNumber;
+    @Column(nullable=false)
     private String orderStatus;
+    @Column(nullable=false)
     private Double orderAmount;
-
+    @Column(nullable=false)
     private String orderDatePlaced;
+
+    private String deliveryMethod;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "ORDER_PRODUCT",
@@ -37,7 +40,7 @@ public class OrderDetail {
 
 
     public OrderDetail(String orderFullName, String orderFullAddress, String orderContactNumber, String orderAlternateContactNumber, String orderStatus,
-                       Double orderAmount, String orderDatePlaced, Set<OrderProducts> products, User user) {
+                       Double orderAmount, String orderDatePlaced, String deliveryMethod, Set<OrderProducts> products, User user) {
         this.orderFullName = orderFullName;
         this.orderFullAddress = orderFullAddress;
         this.orderContactNumber = orderContactNumber;
@@ -45,6 +48,7 @@ public class OrderDetail {
         this.orderStatus = orderStatus;
         this.orderAmount = orderAmount;
         this.orderDatePlaced = orderDatePlaced;
+        this.deliveryMethod = deliveryMethod;
         this.products = products;
         this.user = user;
     }
@@ -139,5 +143,13 @@ public class OrderDetail {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getDeliveryMethod() {
+        return deliveryMethod;
+    }
+
+    public void setDeliveryCost(String deliveryMethod) {
+        this.deliveryMethod = deliveryMethod;
     }
 }

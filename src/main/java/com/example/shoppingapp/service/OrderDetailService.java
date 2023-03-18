@@ -2,6 +2,8 @@ package com.example.shoppingapp.service;
 
 import com.example.shoppingapp.configuration.JwtRequestFilter;
 import com.example.shoppingapp.entity.*;
+import com.example.shoppingapp.exceptions.EmptyCartException;
+import com.example.shoppingapp.exceptions.UserNotLoggedInException;
 import com.example.shoppingapp.repository.CartRepository;
 import com.example.shoppingapp.repository.OrderDetailRepository;
 import com.example.shoppingapp.repository.ProductRepository;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -33,21 +34,30 @@ public class OrderDetailService {
     private CartRepository cartRepository;
 
 
-    public OrderDetail placeOrder(OrderInput orderInput) {
+    public OrderDetail placeOrder(OrderInput orderInput) throws EmptyCartException, UserNotLoggedInException {
        List<Cart> cart = orderInput.getCart();
 
        if(cart.size() == 0) {
-           return null;
+           throw new EmptyCartException();
        }
 
         String currentUser = JwtRequestFilter.CURRENT_USER;
 
        if(currentUser == null) {
-           return null;
+           throw new UserNotLoggedInException();
        }
 
         User user = userRepository.findByUserName(currentUser).get();
 
+       String deliveryMethod = "";
+
+        if (orderInput.getDeliveryCost() == 0) {
+            deliveryMethod = "Pickup from office";
+        } else if (orderInput.getDeliveryCost() == 2) {
+            deliveryMethod = "Postal service";
+        } else if (orderInput.getDeliveryCost() == 4) {
+            deliveryMethod = "Courier service";
+        }
         OrderDetail orderDetail = new OrderDetail(
                 orderInput.getOrderFullName(),
                 orderInput.getOrderFullAddress(),
@@ -56,6 +66,7 @@ public class OrderDetailService {
                 ORDER_PLACED,
                 (double) 0,
                 LocalDate.now().toString(),
+                deliveryMethod,
                 new HashSet<>(),
                 user
         );
@@ -69,10 +80,11 @@ public class OrderDetailService {
                amount += product.getProductDiscountedPrice() * c.getQuantity();
            } else {
                amount += product.getProductActualPrice() * c.getQuantity();
+               product.setProductStock(product.getProductStock() - c.getQuantity());
+               productRepository.save(product);
            }
            orderDetail.addProduct(new OrderProducts(
                    c.getProduct(),
-                   c.getUser(),
                    c.getQuantity()
            ));
 

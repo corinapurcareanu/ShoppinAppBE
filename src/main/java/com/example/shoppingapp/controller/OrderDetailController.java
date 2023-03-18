@@ -2,6 +2,8 @@ package com.example.shoppingapp.controller;
 
 import com.example.shoppingapp.entity.OrderDetail;
 import com.example.shoppingapp.entity.OrderInput;
+import com.example.shoppingapp.exceptions.EmptyCartException;
+import com.example.shoppingapp.exceptions.UserNotLoggedInException;
 import com.example.shoppingapp.service.OrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,7 +21,15 @@ public class OrderDetailController {
     @PreAuthorize("hasRole('user')")
     public OrderDetail placeOrder(
             @RequestBody OrderInput orderInput){
-        return orderDetailService.placeOrder(orderInput);
+        try {
+            return orderDetailService.placeOrder(orderInput);
+        } catch (EmptyCartException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }  catch (UserNotLoggedInException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping({"/getOrderDetails"})

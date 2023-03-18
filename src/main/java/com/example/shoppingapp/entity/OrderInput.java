@@ -8,6 +8,8 @@ public class OrderInput {
     private String orderFullAddress;
     private String orderContactNumber;
     private String orderAlternateContactNumber;
+
+    private Double deliveryCost;
     private List<Cart> cart;
 
     public String getOrderFullName() {
@@ -47,6 +49,18 @@ public class OrderInput {
     }
 
     public void setOrderProductQuantityList(List<Cart> cart) {
+        this.cart = cart;
+    }
+
+    public Double getDeliveryCost() {
+        return deliveryCost;
+    }
+
+    public void setDeliveryCost(Double deliveryCost) {
+        this.deliveryCost = deliveryCost;
+    }
+
+    public void setCart(List<Cart> cart) {
         this.cart = cart;
     }
 }

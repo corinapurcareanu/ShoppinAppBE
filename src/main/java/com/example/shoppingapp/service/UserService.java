@@ -1,18 +1,15 @@
 package com.example.shoppingapp.service;
 
+import com.example.shoppingapp.dto.UserDto;
 import com.example.shoppingapp.entity.Role;
 import com.example.shoppingapp.entity.User;
+import com.example.shoppingapp.exceptions.DuplicateUserException;
+import com.example.shoppingapp.mapper.UserMapper;
 import com.example.shoppingapp.repository.RoleRepository;
 import com.example.shoppingapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Set;
-
 @Service
 public class UserService {
 
@@ -25,18 +22,24 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User registerNewUser(User user) {
+    @Autowired
+    private UserMapper userMapper;
+
+    public UserDto registerNewUser(UserDto userDto) throws DuplicateUserException {
 
         Role role = roleRepository.findByRoleName("user").get();
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-        user.setRole(roles);
-        user.setUserPassword(getEncodedPassword(user.getUserPassword()));
 
-        if(userRepository.findByUserName(user.getUserFirstName()).isPresent()) {
-            return null;
+        String encodedPassword = getEncodedPassword(userDto.getUserPassword());
+
+
+
+        if(userRepository.findByUserName(userDto.getUserFirstName()).isPresent()) {
+            throw new DuplicateUserException();
         }
-        return userRepository.save(user);
+
+        User user = new User(userDto.getUserName(), userDto.getUserFirstName(), userDto.getUserLastName(), userDto.getUserEmail(),
+                encodedPassword, userDto.getUserPhoneNumber(), role);
+        return userMapper.toDto(userRepository.save(user));
     }
 
     public String getEncodedPassword(String password) {

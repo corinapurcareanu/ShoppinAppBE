@@ -1,9 +1,12 @@
 package com.example.shoppingapp.service;
 
 import com.example.shoppingapp.configuration.JwtRequestFilter;
+import com.example.shoppingapp.dto.CartDto;
 import com.example.shoppingapp.entity.Cart;
 import com.example.shoppingapp.entity.Product;
 import com.example.shoppingapp.entity.User;
+import com.example.shoppingapp.exceptions.UserNotLoggedInException;
+import com.example.shoppingapp.mapper.CartMapper;
 import com.example.shoppingapp.repository.CartRepository;
 import com.example.shoppingapp.repository.ProductRepository;
 import com.example.shoppingapp.repository.UserRepository;
@@ -25,7 +28,10 @@ public class CartService {
     @Autowired
     private UserRepository userRepository;
 
-    public Cart addToCart(Long productId) {
+    @Autowired
+    private CartMapper cartMapper;
+
+    public CartDto addToCart(Long productId) throws UserNotLoggedInException {
        Product product = productRepository.findById(productId).get();
        String userName = JwtRequestFilter.CURRENT_USER;
         User user = null;
@@ -34,16 +40,14 @@ public class CartService {
            user = userRepository.findByUserName(userName).get();
        }
        List<Cart> cartList = cartRepository.findByUser(user);
-        cartList.forEach(
-                c -> System.out.println(c.getProduct().getId())
-        );
+
        List<Cart> filteredList = cartList.stream().filter(x -> x.getProduct().getId() == productId).collect(Collectors.toList());
-       System.out.println("dimensiune" + filteredList.size());
+
        if(filteredList.size() > 0) {
            Cart cart = filteredList.get(0);
            cart.setQuantity(cart.getQuantity() + 1);
            cartRepository.deleteById(cart.getId());
-           return cartRepository.save(cart);
+           return cartMapper.toDto(cartRepository.save(cart));
        }
 
        if(product != null && user != null) {
@@ -52,27 +56,27 @@ public class CartService {
                    user,
                    1
            );
-           return cartRepository.save(cart);
+           return cartMapper.toDto(cartRepository.save(cart));
        }
-        return null;
+        throw new UserNotLoggedInException();
     }
 
-    public List<Cart> getCartDetails() {
+    public List<CartDto> getCartDetails() throws UserNotLoggedInException {
         String username = JwtRequestFilter.CURRENT_USER;
 
         if(username != null) {
             User user = userRepository.findByUserName(username).get();
-            return cartRepository.findByUser(user);
+            return cartRepository.findByUser(user).stream().map(cartMapper::toDto).collect(Collectors.toList());
         }
 
-        return null;
+        throw new UserNotLoggedInException();
     }
 
     public void deleteCartItem(Long cartId) {
         cartRepository.deleteById(cartId);
     }
 
-    public Cart updatedQuantityInCart(Long productId, Boolean increase) {
+    public CartDto updatedQuantityInCart(Long productId, Boolean increase) throws UserNotLoggedInException {
         Product product = productRepository.findById(productId).get();
         String userName = JwtRequestFilter.CURRENT_USER;
         User user = null;
@@ -81,11 +85,8 @@ public class CartService {
             user = userRepository.findByUserName(userName).get();
         }
         List<Cart> cartList = cartRepository.findByUser(user);
-        cartList.forEach(
-                c -> System.out.println(c.getProduct().getId())
-        );
+
         List<Cart> filteredList = cartList.stream().filter(x -> x.getProduct().getId() == productId).collect(Collectors.toList());
-        System.out.println("dimensiune" + filteredList.size());
         if (filteredList.size() > 0) {
             Cart cart = filteredList.get(0);
             if(increase) {
@@ -93,8 +94,7 @@ public class CartService {
             } else {
                 cart.setQuantity(cart.getQuantity() - 1);
             }
-            cartRepository.deleteById(cart.getId());
-            return cartRepository.save(cart);
+            return cartMapper.toDto(cartRepository.save(cart));
         }
 
         if (product != null && user != null) {
@@ -103,8 +103,8 @@ public class CartService {
                     user,
                     1
             );
-            return cartRepository.save(cart);
+            return cartMapper.toDto(cartRepository.save(cart));
         }
-        return null;
+        throw new UserNotLoggedInException();
     }
 }

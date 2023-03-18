@@ -1,6 +1,5 @@
 package com.example.shoppingapp.service;
 
-import com.example.shoppingapp.configuration.JwtRequestFilter;
 import com.example.shoppingapp.entity.User;
 import com.example.shoppingapp.util.JwtUtil;
 import com.example.shoppingapp.entity.JwtRequest;
@@ -65,9 +64,7 @@ public class JwtService implements UserDetailsService {
 
     private Set getAuthority(User user) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-        user.getRole().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
-        });
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName()));
         return authorities;
     }
 

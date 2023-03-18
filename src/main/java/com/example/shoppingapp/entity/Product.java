@@ -19,6 +19,12 @@ public class Product {
     @Column(nullable = false)
     private Double productActualPrice;
 
+    @Column(nullable = false, columnDefinition = "numeric(2)")
+    private Integer deliveryDays;
+
+    @Column(nullable = false, columnDefinition = "numeric(20)")
+    private Integer productStock;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "product_images",
             joinColumns = {
@@ -87,5 +93,21 @@ public class Product {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getDeliveryDays() {
+        return deliveryDays;
+    }
+
+    public void setDeliveryDays(Integer deliveryDays) {
+        this.deliveryDays = deliveryDays;
+    }
+
+    public Integer getProductStock() {
+        return productStock;
+    }
+
+    public void setProductStock(Integer productStock) {
+        this.productStock = productStock;
     }
 }

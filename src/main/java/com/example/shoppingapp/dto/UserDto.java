@@ -1,46 +1,23 @@
-package com.example.shoppingapp.entity;
+package com.example.shoppingapp.dto;
 
-import jakarta.persistence.*;
-@Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+public class UserDto {
     private String userName;
-    @Column(nullable = false)
     private String userFirstName;
-    @Column(nullable = false)
     private String userLastName;
-    @Column(nullable = false)
     private String userEmail;
-    @Column(nullable = false)
     private String userPassword;
     private String userPhoneNumber;
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "USER_ROLE",
-    joinColumns = {
-            @JoinColumn(name="USER_ID")
-    },
-    inverseJoinColumns = {
-            @JoinColumn(name = "ROLE_ID")
-    })
-    private Role role;
 
-    public User(String userName, String userFirstName, String userLastName,
-                String userEmail, String userPassword, String userPhoneNumber, Role role) {
+    public UserDto(String userName, String userFirstName, String userLastName,
+                   String userEmail, String userPassword, String userPhoneNumber) {
         this.userName = userName;
         this.userFirstName = userFirstName;
         this.userLastName = userLastName;
         this.userEmail = userEmail;
         this.userPassword = userPassword;
-        this.userPhoneNumber = userPhoneNumber;
-        this.role = role;
     }
 
-    public User() {}
+    public UserDto(){}
 
     public String getUserName() {
         return userName;
@@ -88,21 +65,5 @@ public class User {
 
     public void setUserPhoneNumber(String userPhoneNumber) {
         this.userPhoneNumber = userPhoneNumber;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 }

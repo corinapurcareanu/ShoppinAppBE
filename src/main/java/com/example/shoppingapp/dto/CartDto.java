@@ -1,16 +1,9 @@
-package com.example.shoppingapp.entity;
+package com.example.shoppingapp.dto;
 
-import jakarta.persistence.*;
+import com.example.shoppingapp.entity.Product;
 
-@Entity
-@Table
-public class OrderProducts {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+public class CartDto {
     private Long id;
-
-    @OneToOne
     private Product product;
     private Integer quantity;
 
@@ -22,7 +15,7 @@ public class OrderProducts {
         this.quantity = quantity;
     }
 
-    public OrderProducts() {
+    public CartDto() {
 
     }
 
@@ -30,7 +23,8 @@ public class OrderProducts {
         return product;
     }
 
-    public OrderProducts( Product product, Integer quantity) {
+    public CartDto(Long id, Product product, Integer quantity) {
+        this.id = id;
         this.product = product;
         this.quantity = quantity;
     }
@@ -38,6 +32,7 @@ public class OrderProducts {
     public void setProduct(Product product) {
         this.product = product;
     }
+
     public Long getId() {
         return id;
     }
